@@ -1,7 +1,8 @@
 import pandas as pd
 from datetime import datetime
+import requests
 from companies import *
-import passwords
+from passwords import TELEGRAM_BOT_TOKEN, CHAT_ID1, CHAT_ID2
 
 
 class CurrentJobs:
@@ -90,17 +91,44 @@ class CurrentJobs:
         self.log.to_csv("data/log_table_dubai.csv", index=False)
 
         print(
+            '\n',
             f'New jobs {log_row[1]}\n'
             f'Expired jobs {log_row[3]}\n'
             f'Overall jobs {log_row[2]}\n\n'
             f'Errors: {len(self.errors)}')
 
     def send_results_to_bot(self, chat_id):
-        pass
+        data_new = self.data_all[self.data_all.status == 'new']
+        bot_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage?chat_id={chat_id}&parse_mode" \
+                  f"=markdown&disable_web_page_preview=true&text="
+
+        if len(data_new) > 0:
+            bot_message = '*НОВЫЕ ВАКАНСИИ ДУБАЯ НА ' + datetime.today().strftime('%d-%m-%Y') + '*'
+        else:
+            bot_message = '*НОВЫХ ВАКАНСИЙ ДУБАЯ НА ' + datetime.today().strftime('%d-%m-%Y') + ' НЕТ*'
+
+        requests.get(bot_url + bot_message)
+
+        for company_name in data_new.company.unique().tolist():
+            bot_message = f'*{company_name}*\n'
+
+            for i in data_new[data_new.company == company_name].index:
+                bot_message += f'\n• [{data_new.loc[i, "title"].replace("&", "-").replace("#", "")}]' \
+                               f'({data_new.loc[i, "link"]})'
+
+                if len(bot_message) > 3000:
+                    requests.get(bot_url + bot_message)
+                    bot_message = ''
+
+            requests.get(bot_url + bot_message)
+
+        if self.errors:
+            bot_message = "*bot errors*\n\n" + '\n'.join(self.errors)
+            requests.get(bot_url + bot_message)
 
 
 if __name__ == '__main__':
     current_jobs = CurrentJobs()
     current_jobs.update_data()
-    # current_jobs.make_log()
-    # current_jobs.send_results_to_bot()
+    current_jobs.make_log()
+    current_jobs.send_results_to_bot(CHAT_ID1)
