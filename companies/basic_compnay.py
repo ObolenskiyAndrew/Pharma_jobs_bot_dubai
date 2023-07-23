@@ -1,10 +1,12 @@
 import pandas as pd
 import requests
+# https://curlconverter.com/
 
 
 class BasicCompany:
     def __init__(self):
         self.link = None
+        self.method = "get"
         self.headers = None
         self.params = None
         self.cookies = None
@@ -22,13 +24,24 @@ class BasicCompany:
             self.job_errors += [f'{self.name} fatal error']
 
     def get_response(self):
-        self.response = requests.get(
-            'https://en.jobs.sanofi.com/search-jobs/results',
-            params=self.params,
-            headers=self.headers,
-            cookies=self.cookies,
-            json=self.json_data
-        )
+        if self.method == 'get':
+            self.response = requests.get(
+                self.link,
+                params=self.params,
+                headers=self.headers,
+                cookies=self.cookies,
+                json=self.json_data,
+                timeout=15
+            )
+        elif self.method == 'post':
+            self.response = requests.post(
+                self.link,
+                params=self.params,
+                headers=self.headers,
+                cookies=self.cookies,
+                json=self.json_data,
+                timeout=10
+            )
 
         if self.response.status_code != 200:
             self.job_errors = [f'{self.name} !=200 error']

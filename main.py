@@ -23,6 +23,18 @@ class CurrentJobs:
         self.add_jobs_and_errors(Novartis())
         self.add_jobs_and_errors(Gsk())
         self.add_jobs_and_errors(Astrazeneca())
+        self.add_jobs_and_errors(Pfizer())
+        self.add_jobs_and_errors(Roche())
+        # self.add_jobs_and_errors(Takeda())
+        self.add_jobs_and_errors(JonsonJonson())
+        self.add_jobs_and_errors(Merk())
+        self.add_jobs_and_errors(Bayer())
+        self.add_jobs_and_errors(BoehringerIngelheim())
+        self.add_jobs_and_errors(Iqvia())
+        self.add_jobs_and_errors(NovoNordisk())
+        # self.add_jobs_and_errors(AbbVie())
+        self.add_jobs_and_errors(EliLilly())
+        self.add_jobs_and_errors(Stada())
 
         self.data['upload_date'] = self.day
 
@@ -80,7 +92,7 @@ class CurrentJobs:
         """
 
         log_row = [
-            self.data,
+            self.day,
             len(self.data_all[self.data_all.status == 'new']),
             len(self.data_all[self.data_all.status.isin(['new', 'current'])]),
             len(self.data_all[self.data_all.purge_date == self.day]),
@@ -91,7 +103,6 @@ class CurrentJobs:
         self.log.to_csv("data/log_table_dubai.csv", index=False)
 
         print(
-            '\n',
             f'New jobs {log_row[1]}\n'
             f'Expired jobs {log_row[3]}\n'
             f'Overall jobs {log_row[2]}\n\n'
