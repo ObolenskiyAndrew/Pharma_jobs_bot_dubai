@@ -10,7 +10,9 @@ class CurrentJobs:
         self.data = pd.DataFrame(columns=['title', 'company', 'link', 'id'])
         self.errors = []
         self.get_all_current_jobs_data()
+
         self.data_all = pd.read_csv("data/jobs_database_dubai.csv").reset_index(drop=True)
+        self.log = pd.read_csv("data/log_table_dubai.csv")
 
     def __repr__(self):
         return f"{self.data.shape[0]} current jobs on {self.day}"
@@ -71,7 +73,27 @@ class CurrentJobs:
         self.data_all.to_csv("data/jobs_database_dubai.csv", index=False)
 
     def make_log(self):
-        pass
+        """
+        input dataframe columns: [date, new_jobs, overall_jobs, expired_jobs, errors]
+
+        """
+
+        log_row = [
+            self.data,
+            len(self.data_all[self.data_all.status == 'new']),
+            len(self.data_all[self.data_all.status.isin(['new', 'current'])]),
+            len(self.data_all[self.data_all.purge_date == self.day]),
+            ' | '.join(self.errors)
+        ]
+
+        self.log.loc[len(self.log)] = log_row
+        self.log.to_csv("data/log_table_dubai.csv", index=False)
+
+        print(
+            f'New jobs {log_row[1]}\n'
+            f'Expired jobs {log_row[3]}\n'
+            f'Overall jobs {log_row[2]}\n\n'
+            f'Errors: {len(self.errors)}')
 
     def send_results_to_bot(self, chat_id):
         pass
