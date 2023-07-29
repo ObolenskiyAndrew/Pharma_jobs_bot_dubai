@@ -1,4 +1,4 @@
-from .basic_compnay import BasicCompany
+from .basic_company import BasicCompany
 import re
 
 

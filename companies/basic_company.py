@@ -44,7 +44,7 @@ class BasicCompany:
             )
 
         if self.response.status_code != 200:
-            self.job_errors = [f'{self.name} !=200 error']
+            self.job_errors = [f'{self.name} response status code {response.status_code} error']
 
     def convert_response_to_job_data(self):
         titles, links, ids = self.convert_response(self.response)
